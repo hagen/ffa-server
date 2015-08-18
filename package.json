@@ -1,0 +1,13 @@
+{
+    "name": "node-to-hdb",
+    "main": "server.js",
+    "dependencies": {
+        "express": "~4.0.0",
+        "body-parser": "~1.0.1",
+        "hdb" : "~0.4.4",
+        "google-spreadsheet" : "~1.0.1",
+        "moment" : "2.10.6",
+        "stringbitlength" : "1.0.1",
+        "aws-sdk" : "~2.1.45"
+    }
+}

@@ -1,0 +1,1 @@
+aws copy milk_data from 's3://bck-forefront/milk_data.csv' credentials 'aws_access_key 
