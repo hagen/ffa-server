@@ -1,5 +1,5 @@
 {
-    "name": "node-to-hdb",
+    "name": "app-server",
     "main": "server.js",
     "dependencies": {
         "express": "~4.0.0",
@@ -8,6 +8,7 @@
         "google-spreadsheet" : "~1.0.1",
         "moment" : "2.10.6",
         "stringbitlength" : "1.0.1",
-        "aws-sdk" : "~2.1.45"
+        "pg" : "~4.4.1",
+        "jmd" : "~0.7.5"
     }
 }

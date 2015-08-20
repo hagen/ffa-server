@@ -30,8 +30,71 @@ router.get('/', function(req, res) {
 });
 
 // more routes for our API will happen here
-router.route('/hdb')
+router.route("/redshift")
+  .get(function(req, res) {
+    var pg = require("pg");
 
+    var oOptions = {
+      user : req.get("X-Redshift-user"),
+      password : req.get("X-Redshift-password"),
+      database : req.get("X-Redshift-database"),
+      host : req.get("X-Redshift-endpoint"),
+      port : req.get("X-Redshift-port")
+    };
+
+    // Connect
+    pg.connect(oOptions, function(err, client, done) {
+      if (err) {
+        res.json({ error : true, message: 'Connection error' });
+        return console.error('Connect error', err);
+      }
+
+      var query = req.get("X-Redshift-query") || "select count(*) from pg_table_def;";
+      client.query(query, function(err, rows) {
+        client.end();
+        if (err) {
+          res.json({
+            error : true,
+            message: err
+          });
+          return console.error('Query error:', err);
+        }
+
+        console.log("Table rows read: ", rows.rows.length);
+
+        // Now we'll take the row schema.
+        var jmd = require("jmd");
+        jmd.getMetadata(rows.rows).get("schema").then(function(schema) {
+          var length = require("stringbitlength");
+          var bytes = length(JSON.stringify(rows.rows));
+          res.json({
+            schema : schema,
+            bytes : bytes,
+            rows : rows.rows
+          });
+
+          // Log return
+          console.log("Returned " + bytes + " bytes to caller");
+        });
+      });
+
+      // All done, thanks
+      done();
+    });
+
+    pg.end();
+  });
+
+router.route('/hdb')
+        /***
+        *    ██╗  ██╗██████╗ ██████╗
+        *    ██║  ██║██╔══██╗██╔══██╗
+        *    ███████║██║  ██║██████╔╝
+        *    ██╔══██║██║  ██║██╔══██╗
+        *    ██║  ██║██████╔╝██████╔╝
+        *    ╚═╝  ╚═╝╚═════╝ ╚═════╝
+        *
+        */
       .get(function(req, res) {
         var hdb = require("hdb");
         var client = hdb.createClient({
@@ -60,13 +123,21 @@ router.route('/hdb')
 
 // Google Sheets route
 router.route('/sheets')
-
+      /***
+       *    ███████╗██╗  ██╗███████╗███████╗████████╗███████╗
+       *    ██╔════╝██║  ██║██╔════╝██╔════╝╚══██╔══╝██╔════╝
+       *    ███████╗███████║█████╗  █████╗     ██║   ███████╗
+       *    ╚════██║██╔══██║██╔══╝  ██╔══╝     ██║   ╚════██║
+       *    ███████║██║  ██║███████╗███████╗   ██║   ███████║
+       *    ╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝   ╚═╝   ╚══════╝
+       *
+       */
       .get(function(req, res) {
         var GoogleSpreadsheet = require("google-spreadsheet");
 
         var sKey = req.get("X-Sheet-Key");
         console.log("Doc key:", sKey);
-        var oSheet = new GoogleSpreadsheet(req.get("X-Sheet-Key"));
+        var oSheet = new GoogleSpreadsheet(sKey);
 
         if(oSheet) {
           console.log("Got the Google Sheet!");
@@ -82,12 +153,7 @@ router.route('/sheets')
           var worksheet = info.worksheets[0];
           worksheet.getRows(function(err, rows) {
             // we'll return our rows after they've been parsed
-            var aDefn = {};
             var aRows = [];
-
-            // Begin and end dates for this time series
-            var begda = Date.now();
-            var endda = Date.now();
 
             // let's figure out the actual types of each of these too?!
             for(var i = 0; i < rows.length; i++) {
@@ -101,47 +167,26 @@ router.route('/sheets')
               for(var attr in rows[i]) {
                 if(rows[i].hasOwnProperty(attr) && ["_xml", "title", "content", "_links", "save", "del", "id"].indexOf(attr) === -1) {
 
-                  // Some basics for the definition entry.
-                  var oDefn = {
-                    index : 0,
-                    length : 0,
-                    type : "",
-                    nullable : false
-                  };
-
                   // grab the value - we'll need it.
                   var vValue = rows[i][attr];
 
-                  // Try and get a date out of it...
-                  if (moment(vValue, "YYYY-MM-DD").isValid()){
-                    // Only dealing with date values at the moment, not times
-                    oDefn["type"] = "date";
-                    // Take the date value
-                    oRow[attr] = vValue;
+                  if(vValue) {
+                    // Try and get a date out of it...
+                    if (moment(vValue, "YYYY-MM-DD").isValid()){
+                      // Take the date value
+                      oRow[attr] = moment(vValue).toISOString();
 
-                  } else if(!Number.isNaN(vValue)) {
-                    // Check if it is a number
-                    // try for a decimal
-                    if(vValue.indexOf(".") > -1) {
-                      oDefn["type"] = "decimal";
-                      oRow[attr] = parseFloat(vValue);
+                    } else if(!Number.isNaN(vValue)) {
+                      // Check if it is a number
+                      // try for a decimal
+                      if(vValue.indexOf(".") > -1) {
+                        oRow[attr] = parseFloat(vValue);
+                      } else {
+                        oRow[attr] = parseInt(vValue, 10);
+                      }
                     } else {
-                      oDefn["type"] = "number";
-                      oRow[attr] = parseInt(vValue, 10);
+                      oRow[attr] = vValue;
                     }
-                  } else {
-                    oDefn["type"] = "text";
-                    oRow[attr] = vValue;
-                  }
-
-                  // Lastly, add the definition entry to our definition array,
-                  // if it's not already there.
-                  if(!aDefn[attr]) {
-                    oDefn.index = j;
-                    j++;
-                    oDefn.length = 0;
-                    oDefn.nullable = false;
-                    aDefn[attr] = oDefn;
                   }
                 }
               }
@@ -163,21 +208,24 @@ router.route('/sheets')
               return 0;
             });
 
-            // We'll also need the size (bytes) of the data set.
-            var length = require("stringbitlength");
-            res.json({
-              title: worksheet.title,
-              definition : aDefn, // note this is actually an object (named array)
-              begda : moment(aRows[0].date),
-              endda : moment(aRows[aRows.length-1].date),
-              bytes : length(JSON.stringify(aRows)),
-              rows : aRows
-            });
+            console.log("Table rows read: ", aRows.length);
 
-            // log
-            console.log("Returned to caller...");
-            console.log(JSON.stringify(aDefn));
-            console.log(JSON.stringify(aRows[0]));
+            // Now we'll take the row schema.
+            var jmd = require("jmd");
+            jmd.getMetadata(aRows).get("schema").then(function(schema) {
+              // We'll also need the size (bytes) of the data set.
+              var length = require("stringbitlength");
+              var bytes = length(JSON.stringify(aRows));
+              res.json({
+                title: worksheet.title,
+                schema : schema, // note this is actually an object (named array)
+                bytes : bytes,
+                rows : aRows
+              });
+
+              // Log return
+              console.log("Returned " + bytes + " bytes to caller");
+            });
           });
         });
       });
