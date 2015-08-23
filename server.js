@@ -75,6 +75,7 @@ router.route("/redshift")
 
           // Log return
           console.log("Returned " + bytes + " bytes to caller");
+          console.log("First record: ", JSON.stringify(rows.rows[0]), "End date: ", JSON.stringify(rows.rows[rows.rows.length-1]));
         });
       });
 
@@ -173,8 +174,12 @@ router.route('/sheets')
                   if(vValue) {
                     // Try and get a date out of it...
                     if (moment(vValue, "YYYY-MM-DD").isValid()){
-                      // Take the date value
-                      oRow[attr] = moment(vValue).toISOString();
+
+                      // Take the date value (creates a block)
+                      (function () {
+                        var mDate = moment(vValue);
+                        oRow[attr] = new Date(Date.UTC(mDate.year(), mDate.month(), mDate.date()));
+                      })();
 
                     } else if(!Number.isNaN(vValue)) {
                       // Check if it is a number
@@ -225,6 +230,7 @@ router.route('/sheets')
 
               // Log return
               console.log("Returned " + bytes + " bytes to caller");
+              console.log("First record: ", JSON.stringify(aRows[0]), "End date: ", JSON.stringify(aRows[aRows.length-1]));
             });
           });
         });
