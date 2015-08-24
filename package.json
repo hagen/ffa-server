@@ -1,14 +1,22 @@
 {
-    "name": "app-server",
-    "main": "server.js",
-    "dependencies": {
-        "express": "~4.0.0",
-        "body-parser": "~1.0.1",
-        "hdb" : "~0.4.4",
-        "google-spreadsheet" : "~1.0.1",
-        "moment" : "2.10.6",
-        "stringbitlength" : "1.0.1",
-        "pg" : "~4.4.1",
-        "jmd" : "~0.7.5"
-    }
+  "name": "app-server",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/hagen/app-server.git"
+  },
+  "dependencies": {
+    "body-parser": "~1.0.1",
+    "express": "~4.0.0",
+    "google-spreadsheet": "~1.0.1",
+    "hdb": "~0.4.4",
+    "jmd": "~0.7.5",
+    "moment": "2.10.6",
+    "passport": "~0.3.0",
+    "passport-google": "~0.3.0",
+    "passport-google-oauth": "^0.2.0",
+    "passport-openid": "^0.3.1",
+    "pg": "~4.4.1",
+    "stringbitlength": "1.0.1"
+  }
 }

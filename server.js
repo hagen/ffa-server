@@ -5,6 +5,7 @@
 var express    = require('express');        // call express
 var app        = express();                 // define our app using express
 var bodyParser = require('body-parser');
+var passport = require('passport');
 
 // configure app to use bodyParser()
 // this will let us get the data from a POST
@@ -12,6 +13,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 var port = process.env.PORT || 8080;        // set our port
+
+require('./config/passport')(passport); // pass passport for configuration
 
 // ROUTES FOR OUR API
 // =============================================================================
@@ -24,13 +27,11 @@ router.use(function(req, res, next) {
     next(); // make sure we go to the next routes and don't stop here
 });
 
-// test route to make sure everything is working (accessed at GET http://localhost:8080/api)
-router.get('/', function(req, res) {
-    res.json({ message: 'Hooray! welcome to our api!' });
-});
+app.use(passport.initialize());
+app.use(passport.session());
 
-var api = require('./lib/api.js');
-app.use('/api', api);
+// routing
+require('./app/routes.js')(app, passport);
 
 // START THE SERVER
 // =============================================================================
