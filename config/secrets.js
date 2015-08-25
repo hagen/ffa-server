@@ -5,6 +5,16 @@ module.exports = {
         clientSecret  : 'Nl2gm4hau8kims6X3Y0ZKDak',
         callbackURL   : 'http://localhost:8080/auth/google/callback'
     },
+    twitter : {
+        consumerKey      : 'NmNJhNviadiR6CAxhAENmeQTr',
+        consumerSecret  : '7WLn0fRgxxFgqkpl77ca9wMIHfpYHIZMJcItl6ZHZ9lGsoLIQf',
+        callbackURL   : 'http://localhost:8080/auth/twitter/callback'
+    },
+    linkedin : {
+        clientID      : '75dtqjtvsus2km',
+        clientSecret  : 'sMShpaelT6H0t8Wa',
+        callbackURL   : 'http://localhost:8080/auth/linkedin/callback'
+    },
     scn : {
         path : '/auth/scn/callback',
 				entryPoint : 'https://accounts.sap.com/saml2/idp/sso',

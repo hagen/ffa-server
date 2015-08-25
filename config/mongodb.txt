@@ -1,0 +1,17 @@
+-- Service without auth
+net stop MongoDB
+sc.exe delete MongoDB
+sc.exe create MongoDB binPath= "\"C:\Program Files\MongoDB\Server\3.0\bin\mongod.exe\" --service --config=\"C:\Program Files\MongoDB\mongod.cfg\"" DisplayName= "MongoDB" start= "auto"
+net start MongoDB
+
+-- With auth
+net stop MongoDB
+sc.exe delete MongoDB
+sc.exe create MongoDB binPath= "\"C:\Program Files\MongoDB\Server\3.0\bin\mongod.exe\" --service --auth --config=\"C:\Program Files\MongoDB\mongod.cfg\"" DisplayName= "MongoDB" start= "auto"
+net start MongoDB
+
+
+Db forefrontApp
+
+"forefrontAppAdmin", { pwd: "123456789" }
+"forefrontAppOperator", { pwd: "123456789" }
