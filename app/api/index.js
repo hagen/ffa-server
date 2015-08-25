@@ -7,15 +7,15 @@ router.use(function timeLog(req, res, next) {
   next();
 });
 
-router.get('/redshift', function(req, res) {
+router.get('/api/redshift', function(req, res) {
     require('./api/redshift.js')(req, res);
   });
 
-router.get('/hdb', function(req, res) {
+router.get('/api/hdb', function(req, res) {
     require('./api/hdb.js')(req, res);
   });
 
-router.get('/sheets', function(req, res) {
+router.get('/api/sheets', function(req, res) {
     require('./api/sheets.js')(req, res);
   });
 

@@ -4,14 +4,14 @@ module.exports = function(app, passport) {
   // =====================================
   // HOME PAGE (with login links) ========
   // =====================================
-  app.get('/', function(req, res) {
-    res.json({ message: 'Hooray! welcome to our api!' });
-  });
+  // app.get('/', function(req, res) {
+  //   res.json({ message: 'Hooray! Welcome to our API!' });
+  // });
 
   // =====================================
   // API =================================
   // =====================================
-  app.use('/api', require('./api')); //index.js
+  require('./api'); //index.js
 
   // =====================================
   // LOGIN ===============================
@@ -81,6 +81,23 @@ module.exports = function(app, passport) {
     successRedirect: 'http://localhost/app/#/dash',
     failureRedirect: 'http://localhost/app/#/noauth'
   }));
+
+  // =====================================
+  // SAP IDP =============================
+  // =====================================
+  app.get('/auth/scn', passport.authenticate('saml', {
+    failureRedirect: '/',
+    failureFlash: true
+  }), function(req, res) {
+    res.redirect('http://localhost/app/#/dash');
+  });
+
+  app.get('/auth/scn/callback', passport.authenticate('saml', {
+    failureRedirect: '/',
+    failureFlash: true
+  }), function(req, res) {
+    res.redirect('http://localhost/app/#/dash');
+  });
 };
 
 // route middleware to make sure
