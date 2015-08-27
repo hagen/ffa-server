@@ -6,6 +6,7 @@ var bcrypt   = require('bcrypt-nodejs');
 // define the schema for our user model
 var userSchema = mongoose.Schema({
 
+    accessToken      : String,
     local            : {
         email        : String,
         password     : String
@@ -42,6 +43,18 @@ userSchema.methods.generateHash = function(password, next) {
 // checking if password is valid
 userSchema.methods.validPassword = function(password, next) {
     bcrypt.compare(password, this.local.password, next);
+};
+
+// Remember Me implementation helper method
+userSchema.methods.generateRandomToken = function () {
+  var user = this,
+      chars = "_!abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
+      token = new Date().getTime() + '_';
+  for ( var x = 0; x < 16; x++ ) {
+    var i = Math.floor( Math.random() * 62 );
+    token += chars.charAt( i );
+  }
+  return token;
 };
 
 // create the model for users and expose it to our app

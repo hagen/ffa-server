@@ -1,17 +1,17 @@
 // BASE SETUP
 // =============================================================================
-
+// DEBUG=*,-not_this
 // call the packages we need
-var express    = require('express');        // call express
-var app        = express();                 // define our app using express
+var express = require('express'); // call express
+var app = express(); // define our app using express
 
 var passport = require('passport');
 
-var port = process.env.PORT || 8080;        // set our port
+var port = process.env.PORT || 8080; // set our port
 var mongoose = require('mongoose');
-var session  = require('express-session');
+var session = require('express-session');
 
-var morgan       = require('morgan');
+var morgan = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
@@ -22,26 +22,35 @@ mongoose.connect(configDB.url); // connect to our database
 
 require('./config/passport')(passport); // pass passport for configuration
 
-//app.use(morgan('dev')); // log every request to the console
 app.use(morgan('dev')); // log every request to the console
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser()); // get information from html forms
 
-app.set('view engine', 'ejs');
+//app.set('view engine', 'ejs');
 
 // configure app to use bodyParser()
 // this will let us get the data from a POST
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 app.use(bodyParser.json());
 
 // required for passport
-app.use(session({ secret: 'ilovescotchscotchyscotchscotch' })); // session secret
+app.use(session({
+  secret: 'ilovescotchscotchyscotchscotch'
+})); // session secret
 app.use(passport.initialize());
 app.use(passport.session());
 
 // routing
 require('./app/routes.js')(app, passport);
 
+// Serve up static app files; this is not required for mobile packaging
+//app.use('/app', express.static('../forefront-app'));
+//app.use('/static', express.static('../forefront-app'));
+app.use(express.static('../forefront-app'));
+
+// =============================================================================
 // START THE SERVER
 // =============================================================================
 app.listen(port);

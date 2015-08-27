@@ -3,6 +3,7 @@ var LocalStrategy = require('passport-local').Strategy;
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 var TwitterStrategy = require('passport-twitter').Strategy;
 var LinkedInStrategy = require('passport-linkedin').Strategy;
+var BearerStrategy = require('passport-http-bearer').Strategy;
 //var SamlStrategy = require('passport-saml').Strategy
 
 // load up the user model
@@ -15,15 +16,65 @@ module.exports = function(passport) {
 
   // used to serialize the user for the session
   passport.serializeUser(function(user, done) {
-    done(null, user.id);
+    var createAccessToken = function() {
+      var token = user.generateRandomToken();
+      User.findOne({
+        accessToken: token
+      }, function(err, existingUser) {
+        if (err) {
+          return done(err);
+        }
+        if (existingUser) {
+          createAccessToken(); // Run the function again - the token has to be unique!
+        } else {
+          user.set('accessToken', token);
+          user.save(function(err) {
+            if (err) return done(err);
+            return done(null, user.get('accessToken'));
+          })
+        }
+      });
+    };
+
+    if (user._id) {
+      createAccessToken();
+    }
   });
 
   // used to deserialize the user
-  passport.deserializeUser(function(id, done) {
-    User.findById(id, function(err, user) {
+  passport.deserializeUser(function(token, done) {
+    debugger;
+    User.findOne({
+      accessToken: token
+    }, function(err, user) {
       done(err, user);
     });
   });
+
+  // =========================================================================
+  // BEARER ==================================================================
+  // =========================================================================
+  passport.use('bearer', new BearerStrategy({
+      passReqToCallback: true // allows us to pass back the entire request to the callback
+    },
+    function(req, token, done) {
+      User.findOne({
+          accessToken: token
+        },
+        function(err, user) {
+          if (err) {
+            return done(err);
+          }
+          if (!user) {
+            return done(null, false);
+          }
+          return done(null, user, {
+            scope: 'all'
+          });
+        }
+      );
+    }
+  ));
 
   // =========================================================================
   // LOCAL SIGNUP ============================================================
@@ -63,15 +114,16 @@ module.exports = function(passport) {
 
             // set the user's local credentials
             newUser.local.email = email;
-            //newUser.local.password = newUser.generateHash(password);
             newUser.generateHash(password, function(err, hash) {
-              if (err)
+              if (err) {
                 return done(err);
+              }
               newUser.local.password = hash;
               // save the user
               newUser.save(function(err) {
-                if (err)
+                if (err) {
                   return done(err);
+                }
                 return done(null, newUser);
               });
             });
@@ -105,7 +157,7 @@ module.exports = function(passport) {
 
         // if no user is found, return the message
         if (!user)
-          return done(null, false);//, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
+          return done(null, false); //, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
 
         user.validPassword(password, function(err, valid) {
           if (!valid) {
@@ -129,9 +181,10 @@ module.exports = function(passport) {
       clientID: secrets.google.clientID,
       clientSecret: secrets.google.clientSecret,
       callbackURL: secrets.google.callbackURL,
+      passReqToCallback: true, // allows us to pass back the entire request to the callback
       profile: true
     },
-    function(token, refreshToken, profile, done) {
+    function(req, token, refreshToken, profile, done) {
       // make the code asynchronous
       // User.findOne won't fire until we have all our data back from Google
       process.nextTick(function() {
@@ -146,12 +199,17 @@ module.exports = function(passport) {
           if (user) {
 
             // if a user is found, log them in
-            return done(null, user);
+            user.google.token = token;
+            user.accessToken = user.generateRandomToken();
+            user.save(function(err, doc) {
+              return done(null, doc);
+            });
           } else {
             // if the user isnt in our database, create a new user
             var newUser = new User();
 
             // set all of the relevant information
+            newUser.accessToken = newUser.generateRandomToken();
             newUser.google.id = profile.id;
             newUser.google.token = token;
             newUser.google.name = profile.displayName;
@@ -175,9 +233,10 @@ module.exports = function(passport) {
   passport.use('twitter', new TwitterStrategy({
       consumerKey: secrets.twitter.consumerKey,
       consumerSecret: secrets.twitter.consumerSecret,
-      callbackURL: secrets.twitter.callbackURL
+      callbackURL: secrets.twitter.callbackURL,
+      passReqToCallback: true // allows us to pass back the entire request to the callback
     },
-    function(token, tokenSecret, profile, done) {
+    function(req, token, tokenSecret, profile, done) {
       // make the code asynchronous
       // User.findOne won't fire until we have all our data back from Google
       process.nextTick(function() {
@@ -222,9 +281,10 @@ module.exports = function(passport) {
       consumerKey: secrets.linkedin.clientID,
       consumerSecret: secrets.linkedin.clientSecret,
       callbackURL: secrets.linkedin.callbackURL,
+      passReqToCallback: true, // allows us to pass back the entire request to the callback
       profileFields: ['id', 'first-name', 'last-name', 'email-address', 'headline']
     },
-    function(token, tokenSecret, profile, done) {
+    function(req, token, tokenSecret, profile, done) {
       // make the code asynchronous
       // User.findOne won't fire until we have all our data back from Google
       process.nextTick(function() {
