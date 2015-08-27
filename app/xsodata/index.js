@@ -1,12 +1,5 @@
 var proxy = require('express-http-proxy');
 var secrets = require('../../config/proxy.js');
-var bunyan = require('bunyan');
-var log = bunyan.createLogger({
-  name: 'app',
-  streams : [{
-    path: './xsodata.log'
-  }]
-});
 
 module.exports = function(app, passport) {
 
@@ -25,12 +18,10 @@ module.exports = function(app, passport) {
   }), proxy('hana.forefrontanalytics.com.au', {
     forwardPath: function(req, res) {
       // I need the user
-      var path = require('url').parse(req.url).path.replace("TESTUSER", req.user.id);
-      return path;
+      return require('url').parse(req.url).path.replace("TESTUSER", req.user.id);
     },
     decorateRequest: function(req) {
       req.headers['Authorization'] = secrets.digests[0];
-      debugger;
       return req;
     }
   }));
@@ -47,13 +38,18 @@ module.exports = function(app, passport) {
       return req;
     }
   }));
-  // app.all('/fa/ppo/drop3/xs/services/*', passport.authenticate('bearer', { session : false}), proxy('hana.forefrontanalytics.com.au', {
-  //   forwardPath: function(req, res) {
-  //     return require('url').parse(req.url).path;
-  //   },
-  //   decorateRequest: function(req) {
-  //     req.headers['Authorization'] = secrets.digests[0];
-  //     return req;
-  //   }
-  // }));
+
+  // DELETE
+  app.delete('/fa/ppo/drop3/xs/services/*', passport.authenticate('bearer', {
+    session: false
+  }), proxy('hana.forefrontanalytics.com.au', {
+    forwardPath: function(req, res) {
+      return require('url').parse(req.url).path;;
+    },
+    decorateRequest: function(req) {
+      req.headers['Authorization'] = secrets.digests[0];
+      return req;
+    }
+  }));
+  // What about delete, update and merge?
 };
