@@ -69,7 +69,7 @@ module.exports = function(passport) {
             return done(null, false);
           }
           return done(null, user, {
-            scope: 'all'
+            scope: 'read'
           });
         }
       );
@@ -188,7 +188,6 @@ module.exports = function(passport) {
       // make the code asynchronous
       // User.findOne won't fire until we have all our data back from Google
       process.nextTick(function() {
-
         // try to find the user based on their google id
         User.findOne({
           'google.id': profile.id
@@ -217,8 +216,59 @@ module.exports = function(passport) {
 
             // save the user
             newUser.save(function(err) {
-              if (err)
+              if (err) {
                 throw err;
+              }
+              return done(null, newUser);
+            });
+          }
+        });
+      });
+    }
+  ));
+
+  passport.use('google-connect', new GoogleStrategy({
+      clientID: secrets.google.clientID,
+      clientSecret: secrets.google.clientSecret,
+      callbackURL: secrets.google.callbackURLConnect,
+      passReqToCallback: true, // allows us to pass back the entire request to the callback
+      profile: true
+    },
+    function(req, token, refreshToken, profile, done) {
+      // make the code asynchronous
+      // User.findOne won't fire until we have all our data back from Google
+      process.nextTick(function() {
+        // try to find the user based on their google id
+        User.findOne({
+          'google.id': profile.id
+        }, function(err, user) {
+          if (err)
+            return done(err);
+
+          if (user) {
+
+            // if a user is found, log them in
+            user.google.token = token;
+            user.accessToken = user.generateRandomToken();
+            user.save(function(err, doc) {
+              return done(null, doc);
+            });
+          } else {
+            // if the user isnt in our database, create a new user
+            var newUser = new User();
+
+            // set all of the relevant information
+            newUser.accessToken = newUser.generateRandomToken();
+            newUser.google.id = profile.id;
+            newUser.google.token = token;
+            newUser.google.name = profile.displayName;
+            newUser.google.email = profile.emails[0].value; // pull the first email
+
+            // save the user
+            newUser.save(function(err) {
+              if (err) {
+                throw err;
+              }
               return done(null, newUser);
             });
           }
@@ -251,12 +301,17 @@ module.exports = function(passport) {
           if (user) {
 
             // if a user is found, log them in
-            return done(null, user);
+            user.twitter.token = token;
+            user.accessToken = user.generateRandomToken();
+            user.save(function(err, doc) {
+              return done(null, doc);
+            });
           } else {
             // if the user isnt in our database, create a new user
             var newUser = new User();
 
             // set all of the user data that we need
+            newUser.accessToken = newUser.generateRandomToken();
             newUser.twitter.id = profile.id;
             newUser.twitter.token = token;
             newUser.twitter.username = profile.username;
@@ -264,8 +319,9 @@ module.exports = function(passport) {
 
             // save the user
             newUser.save(function(err) {
-              if (err)
+              if (err) {
                 throw err;
+              }
               return done(null, newUser);
             });
           }
@@ -274,8 +330,57 @@ module.exports = function(passport) {
     }
   ));
 
+  passport.use('twitter-connect', new TwitterStrategy({
+      consumerKey: secrets.twitter.consumerKey,
+      consumerSecret: secrets.twitter.consumerSecret,
+      callbackURL: secrets.twitter.callbackURLConnect,
+      passReqToCallback: true // allows us to pass back the entire request to the callback
+    },
+    function(req, token, tokenSecret, profile, done) {
+      // make the code asynchronous
+      // User.findOne won't fire until we have all our data back from Google
+      process.nextTick(function() {
+
+        // try to find the user based on their google id
+        User.findOne({
+          'twitter.id': profile.id
+        }, function(err, user) {
+          if (err)
+            return done(err);
+
+          if (user) {
+
+            // if a user is found, log them in
+            user.twitter.token = token;
+            user.accessToken = user.generateRandomToken();
+            user.save(function(err, doc) {
+              return done(null, doc);
+            });
+          } else {
+            // if the user isnt in our database, create a new user
+            var newUser = new User();
+
+            // set all of the user data that we need
+            newUser.accessToken = newUser.generateRandomToken();
+            newUser.twitter.id = profile.id;
+            newUser.twitter.token = token;
+            newUser.twitter.username = profile.username;
+            newUser.twitter.displayName = profile.displayName;
+
+            // save the user
+            newUser.save(function(err) {
+              if (err) {
+                throw err;
+              }
+              return done(null, newUser);
+            });
+          }
+        });
+      });
+    }
+  ));
   // =========================================================================
-  // Twitter =================================================================
+  // LinkedIn ================================================================
   // =========================================================================
   passport.use('linkedin', new LinkedInStrategy({
       consumerKey: secrets.linkedin.clientID,
@@ -299,12 +404,17 @@ module.exports = function(passport) {
           if (user) {
 
             // if a user is found, log them in
-            return done(null, user);
+            user.linkedin.token = token;
+            user.accessToken = user.generateRandomToken();
+            user.save(function(err, doc) {
+              return done(null, doc);
+            });
           } else {
             // if the user isnt in our database, create a new user
             var newUser = new User();
 
             // set all of the user data that we need
+            newUser.accessToken = newUser.generateRandomToken();
             newUser.linkedin.id = profile.id;
             newUser.linkedin.token = token;
             newUser.linkedin.email = profile._json.emailAddress;
@@ -323,21 +433,56 @@ module.exports = function(passport) {
       });
     }
   ));
-  // =========================================================================
-  // SCN =====================================================================
-  // =========================================================================
-  // passport.use('saml', new SamlStrategy({
-  //     path: secrets.scn.path,
-  //     entryPoint: secrets.scn.entryPoint,
-  //     issuer: secrets.scn.issuer
-  //   },
-  //   function(profile, done) {
-  //     return done(null, {
-  //       id: profile.uid,
-  //       email: profile.email,
-  //       displayName: profile.cn,
-  //       firstName: profile.givenName,
-  //       lastName: profile.sn
-  //     });
-  //   }));
+
+  passport.use('linkedin-connect', new LinkedInStrategy({
+      consumerKey: secrets.linkedin.clientID,
+      consumerSecret: secrets.linkedin.clientSecret,
+      callbackURL: secrets.linkedin.callbackURLConnect,
+      passReqToCallback: true, // allows us to pass back the entire request to the callback
+      profileFields: ['id', 'first-name', 'last-name', 'email-address', 'headline']
+    },
+    function(req, token, tokenSecret, profile, done) {
+      // make the code asynchronous
+      // User.findOne won't fire until we have all our data back from Google
+      process.nextTick(function() {
+
+        // try to find the user based on their google id
+        User.findOne({
+          'linkedin.id': profile.id
+        }, function(err, user) {
+          if (err)
+            return done(err);
+
+          if (user) {
+
+            // if a user is found, log them in
+            user.linkedin.token = token;
+            user.accessToken = user.generateRandomToken();
+            user.save(function(err, doc) {
+              return done(null, doc);
+            });
+          } else {
+            // if the user isnt in our database, create a new user
+            var newUser = new User();
+
+            // set all of the user data that we need
+            newUser.accessToken = newUser.generateRandomToken();
+            newUser.linkedin.id = profile.id;
+            newUser.linkedin.token = token;
+            newUser.linkedin.email = profile._json.emailAddress;
+            newUser.linkedin.firstname = profile._json.firstName;
+            newUser.linkedin.lastname = profile._json.lastName;
+            newUser.linkedin.headline = profile._json.headline;
+
+            // save the user
+            newUser.save(function(err) {
+              if (err)
+                throw err;
+              return done(null, newUser);
+            });
+          }
+        });
+      });
+    }
+  ));
 };

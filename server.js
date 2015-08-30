@@ -43,12 +43,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // routing
-require('./app/routes.js')(app, passport);
+require('./app/routes')(app, passport);
 
 // Serve up static app files; this is not required for mobile packaging
 //app.use('/app', express.static('../forefront-app'));
 //app.use('/static', express.static('../forefront-app'));
-app.use(express.static('../forefront-app'));
+app.use(express.static('../app'));
 
 // =============================================================================
 // START THE SERVER
