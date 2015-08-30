@@ -109,12 +109,21 @@ module.exports = function(app, passport) {
                 message : 'User\'s Google credentials couldn\'t be saved'
               });
             } else {
-              User.remove({ _id : req.user._id }, function(err) {
+              // Only remove the user if this is not a relink. A relink means The
+              // _id values will be the same.
+              if(existingUser.id !== req.user.id) {
+                User.remove({ _id : req.user._id }, function(err) {
+                  res.json({
+                    status : 'Success',
+                    message : 'User\'s Google credentials merged and old user deleted!'
+                  });
+                });
+              } else {
                 res.json({
                   status : 'Success',
-                  message : 'User\'s Google credentials merged and old user deleted!'
+                  message : 'User\'s Google credentials merged from existing user!'
                 });
-              });
+              }
             }
           });
         }
@@ -191,12 +200,21 @@ module.exports = function(app, passport) {
                 message : 'User\'s Twitter credentials couldn\'t be saved'
               });
             } else {
-              User.remove({ _id : req.user._id }, function(err) {
+              // Only remove the user if this is not a relink. A relink means The
+              // _id values will be the same.
+              if(existingUser.id !== req.user.id) {
+                User.remove({ _id : req.user._id }, function(err) {
+                  res.json({
+                    status : 'Success',
+                    message : 'User\'s Twitter credentials merged and old user deleted!'
+                  });
+                });
+              } else {
                 res.json({
                   status : 'Success',
-                  message : 'User\'s Twitter credentials merged and old user deleted!'
+                  message : 'User\'s Twitter credentials merged from existing user!'
                 });
-              });
+              }
             }
           });
         }
@@ -275,12 +293,22 @@ module.exports = function(app, passport) {
                 message : 'User\'s LinkedIn credentials couldn\'t be saved'
               });
             } else {
-              User.remove({ _id : req.user._id }, function(err) {
+              debugger;
+              // Only remove the user if this is not a relink. A relink means The
+              // _id values will be the same.
+              if(existingUser.id !== req.user.id) {
+                User.remove({ _id : req.user._id }, function(err) {
+                  res.json({
+                    status : 'Success',
+                    message : 'User\'s LinkedIn credentials merged and old user deleted!'
+                  });
+                });
+              } else {
                 res.json({
                   status : 'Success',
-                  message : 'User\'s LinkedIn credentials merged and old user deleted!'
+                  message : 'User\'s LinkedIn credentials merged from existing user!'
                 });
-              });
+              }
             }
           });
         }
