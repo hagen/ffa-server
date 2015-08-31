@@ -38,18 +38,47 @@ module.exports = function(app, passport) {
   // LOCAL ===============================
   // =====================================
   // process the signup form
-  app.post('/auth/signup', passport.authenticate('local-signup', {
-    successRedirect: 'http://localhost:8080/#/plans', // redirect to the secure profile section
+  app.post('/auth/local/register', passport.authenticate('local-register', {
     failureRedirect: 'http://localhost:8080/#/noauth', // redirect back to the signup page if there is an error
     failureFlash: false // allow flash messages
-  }));
+  }), function(req, res) {
+    // Note that there is a subtle difference in this URL. /#/connect
+    // is a route in UI5. /connect is a location on the server
+    res.redirect('http://localhost:8080/#/auth/local/token/' + req.user.accessToken);
+  });
 
   // process the login form
-  app.post('/auth/login', passport.authenticate('local-login', {
-    successRedirect: 'http://localhost:8080/#/dash', // redirect to the secure profile section
+  app.post('/auth/local/login', passport.authenticate('local-login', {
     failureRedirect: 'http://localhost:8080/#/noauth', // redirect back to the signup page if there is an error
     failureFlash: false // allow flash messages
-  }));
+  }), function(req, res) {
+    // Note that there is a subtle difference in this URL. /#/connect
+    // is a route in UI5. /connect is a location on the server
+    res.redirect('http://localhost:8080/#/auth/local/token/' + req.user.accessToken);
+  });
+
+  // send to google to do the authorization
+  app.post('/connect/local', passport.authorize('local-connect', {
+    failureRedirect: 'http://localhost:8080/#/noauth', // redirect back to the signup page if there is an error
+    failureFlash: false // allow flash messages
+  }), function(req, res) {
+    res.json({
+      status : 'Success',
+      message : 'Local user account created and linked'
+    });
+  });
+
+  // Disconnect Google
+  app.get('/disconnect/local', passport.authenticate('bearer', {
+    session: false,
+  }), function(req, res) {
+    var user            = req.user;
+    user.local.email    = undefined;
+    user.local.password = undefined;
+    user.save(function(err) {
+       res.json({ message : 'Local unlinked' });
+    });
+  });
 
   // =====================================
   // GOOGLE ==============================

@@ -82,7 +82,7 @@ module.exports = function(passport) {
   // we are using named strategies since we have one for login and one for signup
   // by default, if there was no name, it would just be called 'local'
 
-  passport.use('local-signup', new LocalStrategy({
+  passport.use('local-register', new LocalStrategy({
       // by default, local strategy uses username and password, we will override with email
       usernameField: 'email',
       passwordField: 'password',
@@ -114,6 +114,7 @@ module.exports = function(passport) {
 
             // set the user's local credentials
             newUser.local.email = email;
+            newUser.accessToken = newUser.generateRandomToken();
             newUser.generateHash(password, function(err, hash) {
               if (err) {
                 return done(err);
@@ -143,35 +144,81 @@ module.exports = function(passport) {
       usernameField: 'email',
       passwordField: 'password',
       passReqToCallback: true // allows us to pass back the entire request to the callback
+    }, function(req, email, password, done) { // callback with email and password from our form
+      process.nextTick(function() {
+        User.findOne({
+          'local.email': email
+        }, function(err, user) {
+          // if there are any errors, return the error before anything else
+          if (err)
+            return done(err);
+
+          // if no user is found, return the message
+          if (!user) {
+            return done(null, false); //, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
+          }
+          debugger;
+          user.validPassword(password, function(err, valid) {
+            if (!valid) {
+              return done(null, false);
+            } else {
+              // all is well, generate accessToken and return user
+              user.accessToken = user.generateRandomToken();
+              user.save(function(err, doc) {
+                if(err) {
+                  return done(null, false); //, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
+                }
+                return done(null, doc);
+              });
+            }
+          });
+        });
+      });
+    }));
+
+  passport.use('local-connect', new LocalStrategy({
+      // by default, local strategy uses username and password, we will override with email
+      usernameField: 'email',
+      passwordField: 'password',
+      passReqToCallback: true // allows us to pass back the entire request to the callback
     },
-    function(req, email, password, done) { // callback with email and password from our form
+    function(req, email, password, done) {
+      // asynchronous
+      // User.findOne wont fire unless data is sent back
+      process.nextTick(function() {
 
-      // find a user whose email is the same as the forms email
-      // we are checking to see if the user trying to login already exists
-      User.findOne({
-        'local.email': email
-      }, function(err, user) {
-        // if there are any errors, return the error before anything else
-        if (err)
-          return done(err);
+        // find a user whose email is the same as the forms email
+        // we are checking to see if the user trying to login already exists
+        User.findOne({
+          'accessToken': req.body.accessToken
+        }, function(err, user) {
+          // if there are any errors, return the error
+          if (err)
+            return done(err);
 
-        // if no user is found, return the message
-        if (!user)
-          return done(null, false); //, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
-
-        user.validPassword(password, function(err, valid) {
-          if (!valid) {
-            return done(null, false); //, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
+          // check to see if theres already a user with that email
+          if (user) {
+            // That email is already taken! Shouldn't happen. Ever
+            user.local.email = email;
+            user.generateHash(password, function(err, hash) {
+              if (err) {
+                return done(err);
+              }
+              user.local.password = hash;
+              // save the user
+              user.save(function(err) {
+                if (err) {
+                  return done(err);
+                }
+                return done(null, user);
+              });
+            });
           } else {
-            // all is well, return successful user
-            return done(null, user);
+            // Couldn't find a user with that bearer token
+            return done(null, false);
           }
         });
-
-        // all is well, return successful user
-        return done(null, user);
       });
-
     }));
 
   // =========================================================================
@@ -345,9 +392,11 @@ module.exports = function(passport) {
         User.findOne({
           'twitter.id': profile.id
         }, function(err, user) {
+          // if any errors, return them
           if (err)
             return done(err);
 
+          // check to see if there's already a user with that twitter id
           if (user) {
 
             // if a user is found, log them in
