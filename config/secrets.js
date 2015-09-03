@@ -22,6 +22,11 @@ module.exports = {
         path : '/auth/scn/callback',
 				entryPoint : 'https://accounts.sap.com/saml2/idp/sso',
 				issuer : 'passport-saml'
+    },
+    braintree : {
+      merchantId : "t3827896pz26dd73",
+      publicKey : "cyjcxxq2kpxsf6v8",
+      privateKey : "eaeb202c5d0f1dd10451d2f4f40ddf04"
     }
 
 };
