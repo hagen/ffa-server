@@ -10,7 +10,9 @@ var userSchema = mongoose.Schema({
     linkToken        : String,
     local            : {
         email        : String,
-        password     : String
+        password     : String,
+        firstname    : String,
+        lastname     : String
     },
     linkedin         : {
         id           : String,

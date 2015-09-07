@@ -28,11 +28,12 @@ module.exports = function(app, passport) {
   app.post('/payments/customer', passport.authenticate('bearer', {
     session : false
   }), function(req, res) {
-    gateway.customer.create({ customFields : { profileId : req.body.profileId } }, function(err, result) {
+    gateway.customer.create({ customFields : { profile_id : req.body.profileId } }, function(err, result) {
       if(err) {
         res.json({ status : "Error", payload : err });
       } else {
         // Otherwise, return the new client Id
+        debugger;
         res.json({ status : "Success", customerId : result.customer.id });
       }
     });
@@ -50,7 +51,7 @@ module.exports = function(app, passport) {
 
   // Process lite subscription
   app.post("/payments/upgrade/free", function (req, res) {
-    upgradeSubscription(req, res, 'free');
+    cancelSubscription(req, res);
   });
 
   // Process lite subscription
@@ -64,6 +65,24 @@ module.exports = function(app, passport) {
   });
 }
 
+function cancelSubscription(req, res) {
+  var subscriptionId = req.body.subscriptionId;
+
+  gateway.subscription.cancel(subscriptionId, function(error, result) {
+    if(error) {
+      res.json({
+        status : 'Error',
+        payload : error
+      });
+    } else {
+      res.json({
+        status : 'Success',
+        payload : result
+      });
+    }
+  });
+};
+
 function upgradeSubscription(req, res, plan) {
   var subscriptionId = req.body.subscriptionId;
 
@@ -71,6 +90,18 @@ function upgradeSubscription(req, res, plan) {
     planId : plan,
     options : {
       prorateCharges : true
+    }
+  }, function(error, result) {
+    if(error) {
+      res.json({
+        status : 'Error',
+        payload : error
+      });
+    } else {
+      res.json({
+        status : 'Success',
+        payload : result
+      });
     }
   });
 };
@@ -110,12 +141,17 @@ function processPayment(req, res, plan) {
     }, function(err, result) {
       debugger;
       if(err) {
-        res.json({ status : "Error", payload : err });
+        res.json({ status : "Error", error : err });
+        return;
+      }
+
+      if(result.errors) {
+        res.json({ status : "Error", error : result.errors });
         return;
       }
 
       // And now I have a subscription status!
-      res.json({ status : "Success", payload : result.subscription });
+      res.json({ status : "Success", subscription : result.subscription });
     });
   });
 }

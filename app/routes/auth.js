@@ -2,6 +2,26 @@
 var User = require('../models/user');
 
 module.exports = function(app, passport) {
+
+  // =====================================
+  // LOGOUT ==============================
+  // =====================================
+  app.get('/register/check/:email', function(req, res) {
+    if(!req.params.email) {
+      res.json({ in_use : false });
+      return;
+    }
+
+    // Else query MongoDB
+    User.findOne({ 'local.email' : req.params.email }, function(err, result) {
+      if(result) {
+        res.json({ in_use : true });
+      } else  {
+        res.json({ in_use : false });
+      }
+    });
+  });
+
   // =====================================
   // LOGOUT ==============================
   // =====================================

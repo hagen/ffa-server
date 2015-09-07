@@ -43,7 +43,6 @@ module.exports = function(passport) {
 
   // used to deserialize the user
   passport.deserializeUser(function(token, done) {
-    debugger;
     User.findOne({
       accessToken: token
     }, function(err, user) {
@@ -113,8 +112,10 @@ module.exports = function(passport) {
             var newUser = new User();
 
             // set the user's local credentials
-            newUser.local.email = email;
-            newUser.accessToken = newUser.generateRandomToken();
+            newUser.local.email     = email;
+            newUser.local.firstname = req.body.firstname;
+            newUser.local.lastname  = req.body.lastname;
+            newUser.accessToken     = newUser.generateRandomToken();
             newUser.generateHash(password, function(err, hash) {
               if (err) {
                 return done(err);
