@@ -1,6 +1,9 @@
 module.exports = function(req, res) {
 
-  var pg = require("pg");
+  var pg = require('pg');
+
+  // Restore decimal parsing in PG
+  require('pg-parse-float')(pg);
 
   var oOptions = {
     user: req.get("X-Redshift-user"),
@@ -32,7 +35,7 @@ module.exports = function(req, res) {
       }
 
       console.log("Table rows read: ", rows.rows.length);
-
+      debugger;
       // Now we'll take the row schema.
       var jmd = require("jmd");
       jmd.getMetadata(rows.rows).get("schema").then(function(schema) {
@@ -46,7 +49,7 @@ module.exports = function(req, res) {
 
         // Log return
         console.log("Returned " + bytes + " bytes to caller");
-        console.log("First record: ", JSON.stringify(rows.rows[0]), "End date: ", JSON.stringify(rows.rows[rows.rows.length - 1]));
+        console.log("First record: ", JSON.stringify(rows.rows[0]), "Last record: ", JSON.stringify(rows.rows[rows.rows.length - 1]));
       });
     });
 
