@@ -15,3 +15,15 @@ Db forefrontApp
 
 "forefrontAppAdmin", { pwd: "123456789" }
 "forefrontAppOperator", { pwd: "123456789" }
+
+
+On mean stack
+sudo mongo
+
+// Create admin user
+use admin;
+db.createUser({
+  user : "siteUserAdmin",
+  pwd  : "123456789",
+  roles : [ { role : "userAdminAnyDatabase", db : "admin" } ]
+})
