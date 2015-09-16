@@ -59,27 +59,30 @@ module.exports = function(app, passport) {
   // =====================================
   // process the signup form
   app.post('/auth/local/register', passport.authenticate('local-register', {
-    failureRedirect: 'http://localhost:8080/#/noauth', // redirect back to the signup page if there is an error
+    failureRedirect: '/#/noauth', // redirect back to the signup page if there is an error
     failureFlash: false // allow flash messages
   }), function(req, res) {
     // Note that there is a subtle difference in this URL. /#/connect
     // is a route in UI5. /connect is a location on the server
-    res.redirect('http://localhost:8080/#/auth/local/token/' + req.user.accessToken);
+    //var url = req.host + ( req.port ? ":" + req.port : "") + "/#/auth/local/token/" + req.user.accessToken;
+    //debugger;
+    res.redirect("/#/auth/local/token/" + req.user.accessToken);
   });
 
   // process the login form
   app.post('/auth/local/login', passport.authenticate('local-login', {
-    failureRedirect: 'http://localhost:8080/#/noauth', // redirect back to the signup page if there is an error
+    failureRedirect: '/#/noauth', // redirect back to the signup page if there is an error
     failureFlash: false // allow flash messages
   }), function(req, res) {
     // Note that there is a subtle difference in this URL. /#/connect
     // is a route in UI5. /connect is a location on the server
-    res.redirect('http://localhost:8080/#/auth/local/token/' + req.user.accessToken);
+    //var url = req.host + ( req.port ? ":" + req.port : "") + "/#/auth/local/token/" + req.user.accessToken;
+    res.redirect("/#/auth/local/token/" + req.user.accessToken);
   });
 
   // send to google to do the authorization
   app.post('/connect/local', passport.authorize('local-connect', {
-    failureRedirect: 'http://localhost:8080/#/noauth', // redirect back to the signup page if there is an error
+    failureRedirect: '/#/noauth', // redirect back to the signup page if there is an error
     failureFlash: false // allow flash messages
   }), function(req, res) {
     res.json({
@@ -110,9 +113,11 @@ module.exports = function(app, passport) {
 
   app.get('/auth/google/callback', passport.authenticate('google', {
     session: false,
-    failureRedirect: 'http://localhost:8080/#/noauth'
+    failureRedirect: '/#/noauth'
   }), function(req, res) {
-    res.redirect('http://localhost:8080/#/auth/google/token/' + req.user.accessToken);
+    //res.redirect('http://localhost:8080/#/auth/google/token/' + req.user.accessToken);
+    //var url = req.host + ( req.port ? ":" + req.port : "") + "/#/auth/google/token/" + req.user.accessToken;
+    res.redirect("/#/auth/google/token/" + req.user.accessToken);
   });
 
   // send to google to do the authorization
@@ -128,7 +133,9 @@ module.exports = function(app, passport) {
   }), function(req, res) {
     // Note that there is a subtle difference in this URL. /#/connect
     // is a route in UI5. /connect is a location on the server
-    res.redirect('http://localhost:8080/#/connect/google/token/' + req.user.accessToken);
+    //res.redirect('http://localhost:8080/#/connect/google/token/' + req.user.accessToken);
+    //var url = req.host + ( req.port ? ":" + req.port : "") + "/#/connect/google/token/" + req.user.accessToken;
+    res.redirect("/#/connect/google/token/" + req.user.accessToken);
   });
 
   // Merge Google account
@@ -201,9 +208,11 @@ module.exports = function(app, passport) {
 
   app.get('/auth/twitter/callback', passport.authenticate('twitter', {
     session: false,
-    failureRedirect: 'http://localhost:8080/#/noauth'
+    failureRedirect: '/#/noauth'
   }), function(req, res) {
-    res.redirect('http://localhost:8080/#/auth/twitter/token/' + req.user.accessToken);
+    //res.redirect('http://localhost:8080/#/auth/twitter/token/' + req.user.accessToken);
+    //var url = req.host + ( req.port ? ":" + req.port : "") + "/#/auth/twitter/token/" + req.user.accessToken;
+    res.redirect("/#/auth/twitter/token/" + req.user.accessToken);
   });
 
   // send to google to do the authentication
@@ -219,7 +228,9 @@ module.exports = function(app, passport) {
   }), function(req, res) {
     // Note that there is a subtle difference in this URL. /#/connect
     // is a route in UI5. /connect is a location on the server
-    res.redirect('http://localhost:8080/#/connect/twitter/token/' + req.user.accessToken);
+    //res.redirect('http://localhost:8080/#/connect/twitter/token/' + req.user.accessToken);
+    //var url = req.host + ( req.port ? ":" + req.port : "") + "/#/connect/twitter/token/" + req.user.accessToken;
+    res.redirect("/#/connect/twitter/token/" + req.user.accessToken);
   });
 
   // Merge Twitter
@@ -292,9 +303,11 @@ module.exports = function(app, passport) {
 
   app.get('/auth/linkedin/callback', passport.authenticate(['bearer','linkedin'], {
     session: false,
-    failureRedirect: 'http://localhost:8080/#/noauth'
+    failureRedirect: '/#/noauth'
   }), function(req, res) {
-    res.redirect('http://localhost:8080/#/auth/linkedin/token/' + req.user.accessToken);
+    //res.redirect('http://localhost:8080/#/auth/linkedin/token/' + req.user.accessToken);
+    //var url = req.host + ( req.port ? ":" + req.port : "") + "/#/auth/linkedin/token/" + req.user.accessToken;
+    res.redirect("/#/auth/linkedin/token/" + req.user.accessToken);
   });
 
   // send to google to do the authentication
@@ -306,11 +319,13 @@ module.exports = function(app, passport) {
   // the callback after LinkedIn has authorized the user
   app.get('/connect/linkedin/callback', passport.authenticate('linkedin-connect', {
     session: false,
-    failureRedirect: 'http://localhost:8080/#/noauth'
+    failureRedirect: '/#/noauth'
   }), function(req, res) {
     // Note that there is a subtle difference in this URL. /#/connect
     // is a route in UI5. /connect is a location on the server
-    res.redirect('http://localhost:8080/#/connect/linkedin/token/' + req.user.accessToken);
+    //res.redirect('http://localhost:8080/#/connect/linkedin/token/' + req.user.accessToken);
+    //var url = req.host + ( req.port ? ":" + req.port : "") + "/#/connect/linkedin/token/" + req.user.accessToken;
+    res.redirect("/#/connect/linkedin/token/" + req.user.accessToken);
   });
 
   // Merge LinkedIn

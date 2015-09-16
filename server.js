@@ -7,7 +7,7 @@ var app = express(); // define our app using express
 
 var passport = require('passport');
 
-var port = process.env.PORT || 8080; // set our port
+var port = process.env.PORT || 80; // set our port
 var mongoose = require('mongoose');
 var session = require('express-session');
 
