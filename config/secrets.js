@@ -7,8 +7,8 @@ module.exports = {
     callbackURLConnect : process.env.GOOGLE_CONNECT_CALLBACK || 'http://hagen.forefrontanalytics.com.au/connect/google/callback'
   },
   twitter : {
-    consumerKey     : process.env.TWITTER_CLIENT_ID || 'NmNJhNviadiR6CAxhAENmeQTr',
-    consumerSecret  : process.env.TWITTER_CLIENT_SECRET || '7WLn0fRgxxFgqkpl77ca9wMIHfpYHIZMJcItl6ZHZ9lGsoLIQf',
+    consumerKey     : process.env.TWITTER_CONSUMER_KEY || 'NmNJhNviadiR6CAxhAENmeQTr',
+    consumerSecret  : process.env.TWITTER_CONSUMER_SECRET || '7WLn0fRgxxFgqkpl77ca9wMIHfpYHIZMJcItl6ZHZ9lGsoLIQf',
     callbackURL        : process.env.TWITTER_CALLBACK || 'http://hagen.forefrontanalytics.com.au/auth/twitter/callback',
     callbackURLConnect : process.env.TWITTER_CONNECT_CALLBACK || 'http://hagen.forefrontanalytics.com.au/connect/twitter/callback'
   },
