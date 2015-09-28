@@ -2,6 +2,11 @@
 // =============================================================================
 // DEBUG=*,-not_this
 // call the packages we need
+// Load up environment variables
+var env = require('node-env-file');
+env(__dirname + '/.env');
+
+// Express
 var express = require('express'); // call express
 var app = express(); // define our app using express
 
