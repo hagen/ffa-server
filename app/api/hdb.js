@@ -20,6 +20,10 @@ module.exports = function(req, res) {
   });
   client.connect(function(err) {
     if (err) {
+      res.json({
+        error: true,
+        message: err
+      });
       return console.error('Connect error', err);
     }
 

@@ -17,4 +17,8 @@ module.exports = function(app) {
   app.get('/api/sheets', function(req, res) {
       require('../api/sheets.js')(req, res);
     });
+
+  app.get('/api/importio', function(req, res) {
+      require('../api/importio.js')(req, res);
+    });
 }

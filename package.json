@@ -34,6 +34,7 @@
     "passport-twitter": "^1.0.3",
     "pg": "~4.4.1",
     "pg-parse-float": "0.0.1",
+    "request": "^2.63.0",
     "stringbitlength": "1.0.1",
     "url": "^0.10.3"
   }

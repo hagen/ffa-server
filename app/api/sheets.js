@@ -97,7 +97,7 @@ module.exports = function(req, res) {
 
         // Log return
         console.log("Returned " + bytes + " bytes to caller");
-        console.log("First record: ", JSON.stringify(aRows[0]), "End date: ", JSON.stringify(aRows[aRows.length - 1]));
+        console.log("First record: ", JSON.stringify(aRows[0]), "Last record: ", JSON.stringify(aRows[aRows.length - 1]));
       });
     });
   });
