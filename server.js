@@ -36,9 +36,7 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 
 // required for passport
-app.use(session({
-  secret: 'ilovescotchscotchyscotchscotch'
-})); // session secret
+app.use(session({ secret : process.env.SESSION_SECRET || 'ilovescotchscotchyscotchscotch' })); // session secret
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -46,8 +44,6 @@ app.use(passport.session());
 require('./app/routes')(app, passport);
 
 // Serve up static app files; this is not required for mobile packaging
-//app.use('/app', express.static('../forefront-app'));
-//app.use('/static', express.static('../forefront-app'));
 app.use(express.static('../app'));
 
 // =============================================================================

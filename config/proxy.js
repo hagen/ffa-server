@@ -1,5 +1,5 @@
 module.exports = {
   digests : [
-    'Basic SERJVFRNRVI6SDRuNGlzZHVtYg==' // HDITTMER
+    process.env.HANA_DIGEST || 'Basic SERJVFRNRVI6SDRuNGlzZHVtYg==' // HDITTMER
   ]
 }
