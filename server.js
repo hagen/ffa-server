@@ -50,7 +50,10 @@ require('./app/routes')(app, passport);
 
 // Serve up static app files; this is not required for mobile packaging
 app.use(express.static('../app' + process.env.DIRECTORY));
-app.use('/sdk', express.static('../app/sdk'));
+
+// SDK is always hosted outside of the app directory, and incorporated with
+// a virtual path for serving to the app
+app.use('/sdk', express.static('../sdk'));
 
 // =============================================================================
 // START THE SERVER
