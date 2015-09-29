@@ -49,7 +49,8 @@ app.use(passport.session());
 require('./app/routes')(app, passport);
 
 // Serve up static app files; this is not required for mobile packaging
-app.use(express.static('../app'));
+app.use(express.static('../app' + process.env.DIRECTORY));
+app.use('/sdk', express.static('../app/sdk'));
 
 // =============================================================================
 // START THE SERVER
