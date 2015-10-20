@@ -3,9 +3,12 @@ var secrets = require('../../config/proxy.js');
 
 module.exports = function(app, passport) {
 
+  // Set up the environment specific path pattern
+  var pattern = secrets.path + '*';
+
   // For all GET requests, we *may* need a user name. If the requested url
   // contains the pattern TESTUSER, we will replace it with the user's user Id
-  app.get('/fa/ppo/drop3/xs/services/*', passport.authenticate('bearer', {
+  app.get(pattern, passport.authenticate('bearer', {
     session: false
   }), proxy('hana.forefrontanalytics.com.au', {
     forwardPath: function(req, res) {
@@ -20,7 +23,7 @@ module.exports = function(app, passport) {
   }))
 
   // POST requests.
-  .post('/fa/ppo/drop3/xs/services/*', passport.authenticate('bearer', {
+  .post(pattern, passport.authenticate('bearer', {
     session: false
   }), proxy('hana.forefrontanalytics.com.au', {
     forwardPath: function(req, res) {
@@ -34,7 +37,7 @@ module.exports = function(app, passport) {
   }))
 
   // MERGE requests.
-  .merge('/fa/ppo/drop3/xs/services/*', passport.authenticate('bearer', {
+  .merge(pattern, passport.authenticate('bearer', {
     session: false
   }), proxy('hana.forefrontanalytics.com.au', {
     forwardPath: function(req, res) {
@@ -48,7 +51,7 @@ module.exports = function(app, passport) {
   }))
 
   // DELETE
-  .delete('/fa/ppo/drop3/xs/services/*', passport.authenticate('bearer', {
+  .delete(pattern, passport.authenticate('bearer', {
     session: false
   }), proxy('hana.forefrontanalytics.com.au', {
     forwardPath: function(req, res) {

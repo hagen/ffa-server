@@ -1,5 +1,6 @@
 module.exports = {
   digests : [
-    process.env.HANA_DIGEST || 'Basic SERJVFRNRVI6SDRuNGlzZHVtYg==' // HDITTMER
-  ]
+    process.env.HANA_DIGEST
+  ],
+  path : process.env.HANA_PATH
 }

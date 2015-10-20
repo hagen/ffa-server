@@ -1,8 +1,8 @@
 module.exports = {
 
   google : {
-    clientID      : process.env.GOOGLE_CLIENT_ID || '622549728825-of3eulqv67r3uf0a4g5gmf8o2pf064ek.apps.googleusercontent.com',
-    clientSecret  : process.env.GOOGLE_CLIENT_SECRET || 'Nl2gm4hau8kims6X3Y0ZKDak',
+    clientID      : process.env.GOOGLE_CLIENT_ID || '200658725219-f61p4uf6l7ln8q95sdhnq8bhgq76qupi.apps.googleusercontent.com',
+    clientSecret  : process.env.GOOGLE_CLIENT_SECRET || 'DWAPpQu4XwI0e3VVDtgQyM9O',
     callbackURL        : process.env.GOOGLE_CALLBACK || 'http://hagen.forefrontanalytics.com.au/auth/google/callback',
     callbackURLConnect : process.env.GOOGLE_CONNECT_CALLBACK || 'http://hagen.forefrontanalytics.com.au/connect/google/callback'
   },

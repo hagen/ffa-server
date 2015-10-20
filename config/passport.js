@@ -158,7 +158,7 @@ module.exports = function(passport) {
           if (!user) {
             return done(null, false); //, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
           }
-          debugger;
+
           user.validPassword(password, function(err, valid) {
             if (!valid) {
               return done(null, false);
@@ -429,6 +429,7 @@ module.exports = function(passport) {
       });
     }
   ));
+
   // =========================================================================
   // LinkedIn ================================================================
   // =========================================================================

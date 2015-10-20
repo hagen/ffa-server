@@ -17,6 +17,7 @@ module.exports = function(req, res) {
 
   // Read in the first sheet only.
   oSheet.getInfo(function(err, info) {
+    debugger;
     var moment = require("moment");
     var worksheet = info.worksheets[0];
     worksheet.getRows(function(err, rows) {
@@ -37,48 +38,35 @@ module.exports = function(req, res) {
 
             // grab the value - we'll need it.
             var vValue = rows[i][attr];
+            oRow[attr] = vValue;
 
-            if (vValue) {
-              // Try and get a date out of it...
-              if (moment(vValue, "YYYY-MM-DD").isValid()) {
-
-                // Take the date value (creates a block)
-                (function() {
-                  var mDate = moment(vValue);
-                  oRow[attr] = new Date(Date.UTC(mDate.year(), mDate.month(), mDate.date()));
-                })();
-
-              } else if (!Number.isNaN(vValue)) {
-                // Check if it is a number
-                // try for a decimal
-                if (vValue.indexOf(".") > -1) {
-                  oRow[attr] = parseFloat(vValue);
-                } else {
-                  oRow[attr] = parseInt(vValue, 10);
-                }
-              } else {
-                oRow[attr] = vValue;
-              }
-            }
+            // if (vValue) {
+            //   // Try and get a date out of it...
+            //   if (moment(vValue, "YYYY-MM-DD").isValid()) {
+            //
+            //     // Take the date value (creates a block)
+            //     (function() {
+            //       var mDate = moment(vValue);
+            //       oRow[attr] = new Date(Date.UTC(mDate.year(), mDate.month(), mDate.date()));
+            //     })();
+            //
+            //   } else if (!Number.isNaN(vValue)) {
+            //     // Check if it is a number
+            //     // try for a decimal
+            //     if (vValue.indexOf(".") > -1) {
+            //       oRow[attr] = parseFloat(vValue);
+            //     } else {
+            //       oRow[attr] = parseInt(vValue, 10);
+            //     }
+            //   } else {
+            //     oRow[attr] = vValue;
+            //   }
+            // }
           }
         }
         // add the row to our row array...
         aRows.push(oRow);
       }
-
-      // The training data should be sorted from lowest date to highest, so
-      // order by date, ascending.
-      aRows.sort(function(a, b) {
-        // Because we have stored the momentjs value, use moment to do the
-        // compares.
-        if (moment(a.date).isBefore(moment(b.date))) {
-          return -1;
-        }
-        if (moment(a.date).isAfter(moment(b.date))) {
-          return 1;
-        }
-        return 0;
-      });
 
       console.log("Table rows read: ", aRows.length);
 

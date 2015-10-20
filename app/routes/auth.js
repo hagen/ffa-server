@@ -62,10 +62,6 @@ module.exports = function(app, passport) {
     failureRedirect: '/#/noauth', // redirect back to the signup page if there is an error
     failureFlash: false // allow flash messages
   }), function(req, res) {
-    // Note that there is a subtle difference in this URL. /#/connect
-    // is a route in UI5. /connect is a location on the server
-    //var url = req.host + ( req.port ? ":" + req.port : "") + "/#/auth/local/token/" + req.user.accessToken;
-    //debugger;
     res.redirect("/#/auth/local/token/" + req.user.accessToken);
   });
 
@@ -74,9 +70,6 @@ module.exports = function(app, passport) {
     failureRedirect: '/#/noauth', // redirect back to the signup page if there is an error
     failureFlash: false // allow flash messages
   }), function(req, res) {
-    // Note that there is a subtle difference in this URL. /#/connect
-    // is a route in UI5. /connect is a location on the server
-    //var url = req.host + ( req.port ? ":" + req.port : "") + "/#/auth/local/token/" + req.user.accessToken;
     res.redirect("/#/auth/local/token/" + req.user.accessToken);
   });
 
@@ -115,8 +108,6 @@ module.exports = function(app, passport) {
     session: false,
     failureRedirect: '/#/noauth'
   }), function(req, res) {
-    //res.redirect('http://localhost:8080/#/auth/google/token/' + req.user.accessToken);
-    //var url = req.host + ( req.port ? ":" + req.port : "") + "/#/auth/google/token/" + req.user.accessToken;
     res.redirect("/#/auth/google/token/" + req.user.accessToken);
   });
 
@@ -131,10 +122,6 @@ module.exports = function(app, passport) {
     session: false,
     failureRedirect: '/'
   }), function(req, res) {
-    // Note that there is a subtle difference in this URL. /#/connect
-    // is a route in UI5. /connect is a location on the server
-    //res.redirect('http://localhost:8080/#/connect/google/token/' + req.user.accessToken);
-    //var url = req.host + ( req.port ? ":" + req.port : "") + "/#/connect/google/token/" + req.user.accessToken;
     res.redirect("/#/connect/google/token/" + req.user.accessToken);
   });
 
@@ -210,12 +197,10 @@ module.exports = function(app, passport) {
     session: false,
     failureRedirect: '/#/noauth'
   }), function(req, res) {
-    //res.redirect('http://localhost:8080/#/auth/twitter/token/' + req.user.accessToken);
-    //var url = req.host + ( req.port ? ":" + req.port : "") + "/#/auth/twitter/token/" + req.user.accessToken;
     res.redirect("/#/auth/twitter/token/" + req.user.accessToken);
   });
 
-  // send to google to do the authentication
+  // send to twitter to do the authentication
   app.get('/connect/twitter', passport.authenticate('twitter-connect', {
     session: false,
     scope : 'email'
@@ -226,10 +211,6 @@ module.exports = function(app, passport) {
     session: false,
     failureRedirect: '/'
   }), function(req, res) {
-    // Note that there is a subtle difference in this URL. /#/connect
-    // is a route in UI5. /connect is a location on the server
-    //res.redirect('http://localhost:8080/#/connect/twitter/token/' + req.user.accessToken);
-    //var url = req.host + ( req.port ? ":" + req.port : "") + "/#/connect/twitter/token/" + req.user.accessToken;
     res.redirect("/#/connect/twitter/token/" + req.user.accessToken);
   });
 
@@ -305,8 +286,6 @@ module.exports = function(app, passport) {
     session: false,
     failureRedirect: '/#/noauth'
   }), function(req, res) {
-    //res.redirect('http://localhost:8080/#/auth/linkedin/token/' + req.user.accessToken);
-    //var url = req.host + ( req.port ? ":" + req.port : "") + "/#/auth/linkedin/token/" + req.user.accessToken;
     res.redirect("/#/auth/linkedin/token/" + req.user.accessToken);
   });
 
@@ -321,10 +300,6 @@ module.exports = function(app, passport) {
     session: false,
     failureRedirect: '/#/noauth'
   }), function(req, res) {
-    // Note that there is a subtle difference in this URL. /#/connect
-    // is a route in UI5. /connect is a location on the server
-    //res.redirect('http://localhost:8080/#/connect/linkedin/token/' + req.user.accessToken);
-    //var url = req.host + ( req.port ? ":" + req.port : "") + "/#/connect/linkedin/token/" + req.user.accessToken;
     res.redirect("/#/connect/linkedin/token/" + req.user.accessToken);
   });
 
@@ -418,5 +393,5 @@ function isLoggedIn(req, res, next) {
     return next();
 
   // if they aren't redirect them to the home page
-  res.redirect('/');
+  res.redirect('/#/login');
 }
